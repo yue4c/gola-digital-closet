@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
 from PIL import Image, ImageTk
+import sqlite3
 import re
 
 
@@ -168,7 +169,6 @@ class SignupPage:
             height=40
         )
 
-        # Password eye button
         self.password_visible = False
 
         self.password_eye = tk.Button(
@@ -190,7 +190,6 @@ class SignupPage:
             height=40
         )
 
-        # Password rule
         password_rule = tk.Label(
             self.root,
             text="8+ characters, uppercase, lowercase, number & special character",
@@ -237,7 +236,6 @@ class SignupPage:
             height=40
         )
 
-        # Confirm password eye button
         self.confirm_visible = False
 
         self.confirm_eye = tk.Button(
@@ -459,13 +457,36 @@ class SignupPage:
             )
             return
 
-        # Success
-        messagebox.showinfo(
-            "Gola",
-            "Account created successfully!"
-        )
+        # ==========================================
+        # SAVE USER TO SQLITE DATABASE
+        # ==========================================
+        try:
+            connection = sqlite3.connect("gola.db")
+            cursor = connection.cursor()
 
-        self.open_login()
+            cursor.execute(
+                """
+                INSERT INTO users (username, email, password)
+                VALUES (?, ?, ?)
+                """,
+                (username, email, password)
+            )
+
+            connection.commit()
+            connection.close()
+
+            messagebox.showinfo(
+                "Gola",
+                "Account created successfully!"
+            )
+
+            self.open_login()
+
+        except sqlite3.IntegrityError:
+            messagebox.showwarning(
+                "Account Exists",
+                "This username or email is already registered."
+            )
 
     # ==========================================
     # OPEN LOGIN PAGE

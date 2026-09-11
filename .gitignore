@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+gola.db
+.vscode/
+.env
